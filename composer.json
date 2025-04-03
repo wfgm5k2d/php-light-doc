@@ -13,12 +13,7 @@
     "homepage": "https://github.com/wfgm5k2d/php-light-doc",
     "keywords": ["Laravel", "PhpLightDoc"],
     "require": {
-        "php": ">=7.4",
-        "illuminate/support": "~9"
-    },
-    "require-dev": {
-        "phpunit/phpunit": "~9.0",
-        "orchestra/testbench": "~7"
+        "php": ">=7.4"
     },
     "autoload": {
         "psr-4": {
