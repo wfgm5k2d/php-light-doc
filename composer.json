@@ -13,7 +13,7 @@
     "homepage": "https://github.com/wfgm5k2d/php-light-doc",
     "keywords": ["Laravel", "PhpLightDoc"],
     "require": {
-        "php": "^7.4|^8.0",
+        "php": "^7.4|^8.4",
         "illuminate/support": "~9"
     },
     "require-dev": {
