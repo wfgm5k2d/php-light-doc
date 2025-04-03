@@ -1,0 +1,35 @@
+{
+    "name": "wfgm5k2d/phplightdoc",
+    "description": "Creating auto-documentation",
+    "minimum-stability": "stable",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nikita Verbuh",
+            "email": "nktpgrlv@gmail.com",
+            "homepage": "https://github.com/wfgm5k2d"
+        }
+    ],
+    "homepage": "https://github.com/wfgm5k2d/php-light-doc",
+    "keywords": ["Laravel", "PhpLightDoc"],
+    "require": {
+        "php": "^7.4|^8.0",
+        "illuminate/support": "~9"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~9.0",
+        "orchestra/testbench": "~7"
+    },
+    "autoload": {
+        "psr-4": {
+            "Wfgm5k2d\\PhpLightDoc\\": "src"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Wfgm5k2d\\PhpLightDoc\\Providers\\PhpLightDocServiceProvider"
+            ]
+        }
+    }
+}
