@@ -23,7 +23,7 @@
                     @foreach($data['uri'] as $uri)
                         <a href="#{{ \Illuminate\Support\Str::slug($uri['uri']['name'] ?? $uri['method']) }}"
                            class="block w-full text-left px-4 py-2 text-gray-700 hover:text-gray-900 text-[12px] border-l-gray-200 border-l-2">
-                            <div class="{{ \App\ColorMethod::getColorMethod(implode(',', $data['method'])) }}">
+                            <div class="{{ \Wfgm5k2d\PhpLightDoc\Helper\ColorMethod::getColorMethod(implode(',', $data['method'])) }}">
                                 {{ implode(',', $data['method']) }}
                             </div> {{ $uri['uri']['name'] ?? $uri['uri']['uri'] }}
                         </a>
@@ -43,7 +43,7 @@
                         <h1 class="text-2xl font-bold mb-2">{{ $uri['uri']['name'] ?? $uri['method'] }}</h1>
                         <div class="text-gray-700 p-2 bg-gray-100 rounded mt-2 mb-2 w-max flex flex-row">
                             <div
-                                    class="{{ \App\ColorMethod::getColorMethod(implode(',', $data['method'])) }}">{{ implode(',', $data['method']) }}</div>
+                                    class="{{ \Wfgm5k2d\PhpLightDoc\Helper\ColorMethod::getColorMethod(implode(',', $data['method'])) }}">{{ implode(',', $data['method']) }}</div>
                             <span class="text-blue-600">
                                 &nbsp;&nbsp;&nbsp;{{ $uri['uri']['uri'] }}
                             </span>

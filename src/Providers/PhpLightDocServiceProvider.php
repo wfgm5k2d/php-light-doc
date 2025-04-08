@@ -15,7 +15,7 @@ class PhpLightDocServiceProvider extends ServiceProvider
     public function boot(): void
     {
         $this->loadRoutesFrom(__DIR__ . '/../routes/php-light-doc.php');
-        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'light-php-doc');
+        $this->loadViewsFrom(__DIR__ . '/../resources/views', 'php-light-doc');
 
         if ($this->app->runningInConsole()) {
             $this->commands([
