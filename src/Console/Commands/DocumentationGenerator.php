@@ -2,14 +2,14 @@
 
 namespace Wfgm5k2d\PhpLightDoc\Console\Commands;
 
-use App\DocGName;
-use App\DocMiddleware;
-use App\DocResponseCodes;
-use App\DocRName;
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Routing\Route as RouteInstance;
 use Illuminate\Support\Facades\Route;
+use Wfgm5k2d\PhpLightDoc\Attributes\DocGName;
+use Wfgm5k2d\PhpLightDoc\Attributes\DocMiddleware;
+use Wfgm5k2d\PhpLightDoc\Attributes\DocResponseCodes;
+use Wfgm5k2d\PhpLightDoc\Attributes\DocRName;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
