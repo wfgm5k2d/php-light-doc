@@ -1,13 +1,19 @@
 <?php
 
-namespace Wfgm5k2d\PhpLightDoc\Attributes;
+namespace Piratecode\PhpLightDoc\Attributes;
 
 use Attribute;
 
 #[Attribute]
 class DocGName
 {
-    public function __construct(public string $docGName)
-    {
+    /**
+     * @param  string  $name Название подгруппы (например, "Пользователь API")
+     * @param  string|null  $group Название основной группы (например, "Пользователи"). Если null, используется $name.
+     */
+    public function __construct(
+        public string $name,
+        public ?string $group = null
+    ) {
     }
 }

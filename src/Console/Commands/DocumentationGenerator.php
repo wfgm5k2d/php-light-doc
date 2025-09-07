@@ -1,15 +1,15 @@
 <?php
 
-namespace Wfgm5k2d\PhpLightDoc\Console\Commands;
+namespace Piratecode\PhpLightDoc\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Routing\Route as RouteInstance;
 use Illuminate\Support\Facades\Route;
-use Wfgm5k2d\PhpLightDoc\Attributes\DocGName;
-use Wfgm5k2d\PhpLightDoc\Attributes\DocMiddleware;
-use Wfgm5k2d\PhpLightDoc\Attributes\DocResponseCodes;
-use Wfgm5k2d\PhpLightDoc\Attributes\DocRName;
+use Piratecode\PhpLightDoc\Attributes\DocGName;
+use Piratecode\PhpLightDoc\Attributes\DocMiddleware;
+use Piratecode\PhpLightDoc\Attributes\DocResponseCodes;
+use Piratecode\PhpLightDoc\Attributes\DocRName;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;
@@ -96,16 +96,59 @@ class DocumentationGenerator extends Command
         $result = [];
 
         foreach ($routes as $route) {
-            if ($controllerData = $this->parseRoute($route)) {
-                $controller = $controllerData['controller'];
-                $httpMethods = $controllerData['uri']['methods'];
-                unset($controllerData['controller']);
-                $groupName = $this->extractControllerGroup($controller);
+            if (!($controllerData = $this->parseRoute($route))) {
+                continue;
+            }
 
+            $controller = $controllerData['controller'];
+            $httpMethods = $controllerData['uri']['methods'];
+            unset($controllerData['controller']);
+
+            $groupInfo = $this->extractControllerGroup($controller);
+            $mainGroupName = $groupInfo['group'];
+            $subGroupName = $groupInfo['name'];
+
+            // === Сценарий 1: Используется двухуровневая группировка ===
+            if ($mainGroupName !== null) {
+                // Создаем основную группу, если ее нет
+                if (!isset($result[$mainGroupName])) {
+                    $result[$mainGroupName] = [
+                        'type' => 'main_group', // Маркер для шаблона
+                        'name' => $mainGroupName,
+                        'subgroups' => [],
+                    ];
+                }
+
+                // Создаем подгруппу по FQCN контроллера, если ее нет
+                if (!isset($result[$mainGroupName]['subgroups'][$controller])) {
+                    $middlewareInfo = $this->extractMiddlewareInfo($controller);
+                    $result[$mainGroupName]['subgroups'][$controller] = [
+                        'name' => $subGroupName,
+                        'controller' => $controller,
+                        'request' => $middlewareInfo ?: $this->extractMiddlewareInfoFromRoute($route),
+                        'data' => [],
+                    ];
+                }
+
+                $methodKey = implode(', ', $httpMethods);
+                if (!isset($result[$mainGroupName]['subgroups'][$controller]['data'][$methodKey])) {
+                    $result[$mainGroupName]['subgroups'][$controller]['data'][$methodKey] = [
+                        'method' => $httpMethods,
+                        'uri' => [],
+                    ];
+                }
+
+                $result[$mainGroupName]['subgroups'][$controller]['data'][$methodKey]['uri'][] = $controllerData;
+            }
+            // === Сценарий 2: Используется старая, одноуровневая группировка ===
+            else {
+                $groupName = $subGroupName; // В этом случае 'name' - это и есть имя группы
+
+                // Создаем группу по FQCN контроллера, если ее нет
                 if (!isset($result[$controller])) {
                     $middlewareInfo = $this->extractMiddlewareInfo($controller);
-
                     $result[$controller] = [
+                        'type' => 'single_group', // Маркер для шаблона
                         'group' => $groupName,
                         'controller' => $controller,
                         'request' => $middlewareInfo ?: $this->extractMiddlewareInfoFromRoute($route),
@@ -113,7 +156,7 @@ class DocumentationGenerator extends Command
                     ];
                 }
 
-                $methodKey = implode(', ', $httpMethods); // Ключ группы методов
+                $methodKey = implode(', ', $httpMethods);
                 if (!isset($result[$controller]['data'][$methodKey])) {
                     $result[$controller]['data'][$methodKey] = [
                         'method' => $httpMethods,
@@ -125,9 +168,16 @@ class DocumentationGenerator extends Command
             }
         }
 
-        // Преобразуем ассоциативный массив в массив для JSON
-        foreach ($result as &$controllerData) {
-            $controllerData['data'] = array_values($controllerData['data']);
+        // Преобразуем ассоциативные массивы в индексные для JSON
+        foreach ($result as &$group) {
+            if ($group['type'] === 'main_group') {
+                $group['subgroups'] = array_values($group['subgroups']);
+                foreach ($group['subgroups'] as &$subgroup) {
+                    $subgroup['data'] = array_values($subgroup['data']);
+                }
+            } else { // 'single_group'
+                $group['data'] = array_values($group['data']);
+            }
         }
 
         return array_values($result);
@@ -209,28 +259,36 @@ class DocumentationGenerator extends Command
 
     // Можно юзать как group параметр в комментариях
     // Так и аттрибут #[DocGName('Тут мой текст')]
-    protected function extractControllerGroup(string $controller): ?string
+    protected function extractControllerGroup(string $controller): array
     {
         $reflection = new \ReflectionClass($controller);
 
         // Проверяем атрибуты (PHP 8+)
-        foreach ($reflection->getAttributes() as $attribute) {
-            if ($attribute->getName() === DocGName::class) {
-                return $attribute->newInstance()->docGName;
-            }
+        foreach ($reflection->getAttributes(DocGName::class) as $attribute) {
+            $instance = $attribute->newInstance();
+            return [
+                'name'  => $instance->name,  // Имя подгруппы или единственное имя
+                'group' => $instance->group, // Имя основной группы, будет NULL, если не указано
+            ];
         }
 
         // Проверяем комментарии в файле
         $file = new \SplFileObject($reflection->getFileName());
-
         while (!$file->eof()) {
             $line = trim($file->fgets());
             if (preg_match('/^\/\/\s*group\s+(.+)/', $line, $matches)) {
-                return trim($matches[1]);
+                $groupName = trim($matches[1]);
+                return [
+                    'name'  => $groupName,
+                    'group' => null, // Комментарии поддерживают только один уровень
+                ];
             }
         }
 
-        return null;
+        return [
+            'name'  => class_basename($controller), // По умолчанию - имя класса
+            'group' => null,
+        ];
     }
 
     // Можно юзать как name параметр в комментариях
@@ -526,7 +584,7 @@ class DocumentationGenerator extends Command
             }
 
             // Проверяем константы типа Response::HTTP_BAD_REQUEST
-            if (preg_match_all('/return\s+new\s+JsonResponse\([^,]+,\s*Response::(HTTP_[A-Z_]+)\)/', $methodCode, $matches)) {
+            if (preg_match_all('/ return\s+new\s+JsonResponse\( (?:[^,]|\[.*?\])+ , \s* Response::(HTTP_[A-Z_]+) \s* \)/sx', $methodCode, $matches)) {
                 foreach ($matches[1] as $constant) {
                     if (defined("Symfony\Component\HttpFoundation\Response::$constant")) {
                         $responses[] = constant("Symfony\Component\HttpFoundation\Response::$constant");
@@ -545,7 +603,7 @@ class DocumentationGenerator extends Command
                 return [200];
             }
 
-            return [];
+            return [200];
         } catch (\Throwable $e) {
             return [200];
         }
