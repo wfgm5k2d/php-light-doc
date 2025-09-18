@@ -26,7 +26,7 @@ class DocumentationGenerator extends Command
     public function handle(): int
     {
         $this->paths = explode(',', config('php-light-doc.dirs.scan'));
-        $this->excludePaths = explode(',', config('php-light-doc.dirs.exclude'));
+        $this->excludePaths = config('php-light-doc.dirs.exclude') ? explode(',', config('php-light-doc.dirs.exclude')) : [];
         $result = $this->generate();
 
         file_put_contents(config('php-light-doc.path.file-documentation'), json_encode($result, JSON_PRETTY_PRINT|JSON_UNESCAPED_SLASHES|JSON_UNESCAPED_UNICODE));
