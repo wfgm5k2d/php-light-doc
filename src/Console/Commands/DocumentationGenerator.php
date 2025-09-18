@@ -1,15 +1,15 @@
 <?php
 
-namespace Piratecode\PhpLightDoc\Console\Commands;
+namespace Wfgm5k2d\PhpLightDoc\Console\Commands;
 
 use Illuminate\Console\Command;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Routing\Route as RouteInstance;
 use Illuminate\Support\Facades\Route;
-use Piratecode\PhpLightDoc\Attributes\DocGName;
-use Piratecode\PhpLightDoc\Attributes\DocMiddleware;
-use Piratecode\PhpLightDoc\Attributes\DocResponseCodes;
-use Piratecode\PhpLightDoc\Attributes\DocRName;
+use Wfgm5k2d\PhpLightDoc\Attributes\DocGName;
+use Wfgm5k2d\PhpLightDoc\Attributes\DocMiddleware;
+use Wfgm5k2d\PhpLightDoc\Attributes\DocResponseCodes;
+use Wfgm5k2d\PhpLightDoc\Attributes\DocRName;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
 use SplFileInfo;

@@ -88,7 +88,7 @@
                                     @foreach($data['uri'] as $uri)
                                         <a href="#{{ \Illuminate\Support\Str::slug($subGroup['controller'] . '-' . ($uri['uri']['name'] ?? $uri['method'])) }}"
                                            class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 text-[12px] border-l-gray-200 border-l-2">
-                                            <div class="{{ \Piratecode\PhpLightDoc\Helper\ColorMethod::getColorMethod(implode(',', $data['method'])) }}">
+                                            <div class="{{ \Wfgm5k2d\PhpLightDoc\Helper\ColorMethod::getColorMethod(implode(',', $data['method'])) }}">
                                                 {{ implode(',', $data['method']) }}
                                             </div> {{ $uri['uri']['name'] ?? $uri['uri']['uri'] }}
                                         </a>
@@ -108,7 +108,7 @@
                             @foreach($data['uri'] as $uri)
                                 <a href="#{{ \Illuminate\Support\Str::slug($item['controller'] . '-' . ($uri['uri']['name'] ?? $uri['method'])) }}"
                                    class="block w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100 text-[12px] border-l-gray-200 border-l-2">
-                                    <div class="{{ \Piratecode\PhpLightDoc\Helper\ColorMethod::getColorMethod(implode(',', $data['method'])) }}">
+                                    <div class="{{ \Wfgm5k2d\PhpLightDoc\Helper\ColorMethod::getColorMethod(implode(',', $data['method'])) }}">
                                         {{ implode(',', $data['method']) }}
                                     </div> {{ $uri['uri']['name'] ?? $uri['uri']['uri'] }}
                                 </a>

@@ -1,6 +1,6 @@
 <?php
 
-namespace Piratecode\PhpLightDoc\Attributes;
+namespace Wfgm5k2d\PhpLightDoc\Attributes;
 
 use Attribute;
 

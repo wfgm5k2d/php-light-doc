@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Piratecode\PhpLightDoc\Services;
+namespace Wfgm5k2d\PhpLightDoc\Services;
 
 use Symfony\Component\HttpFoundation\Response;
 use PhpParser\Node;
