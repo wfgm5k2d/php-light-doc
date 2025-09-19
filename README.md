@@ -1,140 +1,195 @@
 # Laravel API Documentation Generator
 
-![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)
-![API Docs](https://img.shields.io/badge/Docs-100%25%20Automated-brightgreen?style=for-the-badge)
+![Laravel](https://img.shields.io/badge/Laravel-FF2D20?style=for-the-badge&logo=laravel&logoColor=white)![API Docs](https://img.shields.io/badge/Docs-100%25%20Automated-brightgreen?style=for-the-badge)
 
-Этот пакет автоматически анализирует контроллеры и маршруты Laravel, извлекая информацию о группах, именах, middleware, кодах ответов и формируя удобную документацию в формате JSON.
+This package automatically analyzes Laravel controllers and routes, extracting information about groups, names, middleware, response codes, and generating user-friendly documentation in JSON format.
 
-## 📦 Установка
+## 📦 Installation
 
 ```bash
 composer require wfgm5k2d/php-light-doc
 ```
-## 📦 Опубликуйте все файлы
+## 📦 Publish all files
 
 ```bash
 php artisan vendor:publish --provider='Wfgm5k2d\PhpLightDoc\Providers\PhpLightDocServiceProvider'
 ```
 
-## Настройте переменные окружения
+## Configure environment variables
 ```dotenv
-# Ваш путь до файла с документацией
+# Your path to the documentation file
 PATH_TO_FILE_DOCUMENTATION='/your_full_path_to_file/api_documentation.json'
-# Перечислите папки для сканирования через запятую если их много
+# List folders to scan, separated by commas if there are many
 PATH_TO_DIR_SCAN='app/Domain, app/Http/Controllers'
-# Исключите папки из сканирования через запятую если их много
+# Exclude folders from scanning, separated by commas if there are many
 PATH_TO_DIR_EXCLUDE='app/Http/Controllers/Admin, CustomBackupController'
 ```
-## 🚀 Использование
-После установки в Laravel появится команда для генерации документации:
+## 🚀 Usage
+After installation, a command to generate documentation will appear in Laravel:
 
 ```bash
 php artisan doc:generate
 ```
-Документация будет сохранена в файле, указанном в `.env`, и доступна в браузере по маршруту `/doc`.
+The documentation will be saved in the file specified in `.env` and will be available in the browser at the `/doc` route.
 
-## 📝 Аннотации и атрибуты
-Вы можете дополнительно аннотировать контроллеры и методы для более точного описания API.
+## 📝 Annotations and attributes
+You can additionally annotate controllers and methods for a more accurate API description.
 
-### Группировка контроллеров
-Группы помогают структурировать документацию по тематическим разделам.
+### Controller Grouping
+Groups help structure the documentation into thematic sections.
 
-#### Простая группировка
-Вы можете дать название группе контроллера. Все роуты этого контроллера попадут в указанную группу.
+#### Simple grouping
+You can give a name to a controller group. All routes of this controller will fall into the specified group.
 
-**Через комментарий:**
+**Via comment:**
 
 ```php
-// group Пользователи
+// group Users
 final class UserController extends Controller
 ```
-**Или атрибут:**
+**Or attribute:**
 
 ```php
-#[DocGName('Пользователи')]
+#[DocGName('Users')]
 final class UserController extends Controller
 ```
 
 ---
 
-#### **🆕 Расширенная группировка (вложенные группы)**
-Вы также можете создавать группы верхнего уровня для объединения нескольких контроллеров. Для этого в атрибуте `DocGName` нужно передать второй параметр — название основной группы.
+#### **🆕 Advanced grouping (nested groups)**
+You can also create top-level groups to combine multiple controllers. To do this, you need to pass a second parameter to the `DocGName` attribute — the name of the main group.
 
-**Через атрибут:**
+**Via attribute:**
 
 ```php
-// Этот контроллер попадет в подгруппу "Пользователи API" внутри основной группы "Пользователи"
-#[DocGName('Пользователи API', 'Пользователи')]
+// This controller will be placed in the "Users API" subgroup within the main "Users" group
+#[DocGName('Users API', 'Users')]
 final class UserController extends Controller {
     // ...
 }
 
-// Этот контроллер попадет в подгруппу "Аутентификация" внутри той же основной группы "Пользователи"
-#[DocGName('Аутентификация', 'Пользователи')]
+// This controller will be placed in the "Authentication" subgroup within the same main "Users" group
+#[DocGName('Authentication', 'Users')]
 final class AuthController extends Controller {
     // ...
 }
 ```
-Это позволяет создавать более сложную и удобную структуру документации.
+This allows you to create a more complex and convenient documentation structure.
 
 ---
 
-## Описание маршрутов
-Вы можете задать понятное название маршруту:
+## Route Description
+You can set a clear name for the route:
 
-**Через комментарий:**
+**Via comment:**
 
 ```php
-// name Создать заявку на компенсацию
+// name Create a compensation request
+public function createApplication(Request $request): JsonResponse```
+**Or attribute:**
+
+```php
+#[DocRName('Create a compensation request')]
 public function createApplication(Request $request): JsonResponse
 ```
-**Или атрибут:**
+
+## Middleware Requirements
+If a method requires authorization or special headers, specify it explicitly.
+
+**Via comment:**
 
 ```php
-#[DocRName('Создать заявку на компенсацию')]
-public function createApplication(Request $request): JsonResponse
-```
-
-## Требования middleware
-Если метод требует авторизации или специальных заголовков, укажите это явно.
-
-**Через комментарий:**
-
-```php
-// middleware-name Требуется аутентификация
+// middleware-name Authentication required
 // middleware-value Authorization: Bearer {token}
 final class SecureController extends Controller
 ```
-**Или атрибут:**
+**Or attribute:**
 
 ```php
-#[DocMiddleware('Требуется аутентификация', 'Authorization: Bearer {token}')]
+#[DocMiddleware('Authentication required', 'Authorization: Bearer {token}')]
 final class SecureController extends Controller
 ```
 
-По умолчанию проверяется такой набор middleware: `auth`, `throttle`, `can`, `requires`.
+By default, the following set of middleware is checked: `auth`, `throttle`, `can`, `requires`.
 
-## Коды ответов
-Пакет ищет коды ответов в конструкциях `response()->json()`, `new JsonResponse()`, включая константы `Response::HTTP_*`. Вы также можете указать их вручную.
+## Response Codes
+The package searches for response codes in these constructs:
+```php
+return response()->json()
+return new JsonResponse([])
+return new JsonResponse([], Response::HTTP_...)
+return new JsonResponse([], 200)
+```
+By default, the response code will be 200 if no others are specified.
 
-**Через комментарий:**
+You can manually specify the available response codes if they are not detected
+
+**Via comment:**
 
 ```php
 // response-codes 200 404 500
 public function getUserData(Request $request): JsonResponse```
 
-**Или атрибут:**
+**Or attribute:**
 
 ```php
 #[DocResponseCodes()]
 public function getUserData(Request $request): JsonResponse
 ```
 
-## 🔄 Генерация и просмотр документации
-Запустите команду генерации:
+## 🔄 Generating and viewing documentation
+Run the generation command:
 
 ```bash
 php artisan doc:generate
 ```
 
-Откройте `/doc` в браузере для просмотра.
+Open `/doc` in your browser to view.
+
+## How to develop the package locally?
+- Deploy a Laravel project locally. The last package build was on Laravel 12
+```bash
+laravel new php-light-doc
+```
+- Inside the project, create a `packages` folder
+```bash
+cd php-light-doc
+mkdir "packages"
+```
+- This is your packages directory. Add the `wfgm5k2d` namespace here
+```bash
+mkdir "wfgm5k2d"
+```
+- Clone the package code from the repository into it
+- In the providers, connect the package provider
+
+#### Laravel <= 10v.
+- In the `config/app.php` file, add the package provider to the `providers` array
+```php
+'providers' => [
+    ...
+    \Wfgm5k2d\PhpLightDoc\Providers\PhpLightDocServiceProvider::class,
+]
+```
+
+#### Laravel >= 11v.
+- In the `bootstrap/providers.php` file, add the package provider to the array
+```php
+return [
+    ...
+    \Wfgm5k2d\PhpLightDoc\Providers\PhpLightDocServiceProvider::class,
+]
+```
+
+- In `composer.json`, connect the package in the autoload section
+```json
+{
+    "autoload": {
+        "psr-4": {
+            "App\\": "app/",
+            "Wfgm5k2d\\PhpLightDoc\\": "packages/wfgm5k2d/php-lite-doc/src",
+            ...
+        }
+    }
+}
+```
